@@ -3,3 +3,6 @@ uvicorn
 crewai
 langchain-openai
 pydantic
+requests
+duckduckgo-search
+beautifulsoup4
