@@ -93,7 +93,7 @@ def validate_company(name: str):
     try:
         results = DDGS().text(f"{name} company official", max_results=2)
         if not results:
-            return {"valid": False}
+            return {"valid": True} # Fall open if DDG returns empty (Render IP rate limit)
             
         text_dump = " ".join([r['title'] + " " + r['body'] for r in results]).lower()
         parts = name_lower.split()
