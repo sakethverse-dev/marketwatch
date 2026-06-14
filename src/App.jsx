@@ -531,15 +531,6 @@ function App() {
                <button onClick={async () => { 
                  if(compInput) { 
                    setIsValidating(true);
-                   try {
-                       const res = await fetch(`${API_BASE_URL}/validate?name=${encodeURIComponent(compInput)}`);
-                       const data = await res.json();
-                       if (!data.valid) {
-                          alert("Fake or Unrecognized Company! Please enter a real company.");
-                          setIsValidating(false);
-                          return;
-                       }
-                   } catch (err) {}
                    setCompetitors([...competitors, compInput]); 
                    setCompInput(''); 
                    setIsValidating(false);
