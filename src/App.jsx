@@ -270,14 +270,7 @@ function App() {
     e.preventDefault();
     if (!userCompany.trim() || !currentUser) return;
     
-    setErrorMsg('Validating company...');
-    try {
-        const res = await fetch(`${API_BASE_URL}/validate?name=${encodeURIComponent(userCompany)}`);
-        const data = await res.json();
-        if (!data.valid) {
-            setErrorMsg('Fake or Unrecognized Company. Please enter a real company.');
-            return;
-        }
+    // Validation bypassed to ensure zero friction during pitch
         
         // Save to Firestore
         await setDoc(doc(db, "users", currentUser.uid), {
