@@ -272,15 +272,14 @@ function App() {
     
     // Validation bypassed to ensure zero friction during pitch
         
-        // Save to Firestore
+    // Save to Firestore
+    try {
         await setDoc(doc(db, "users", currentUser.uid), {
           company: userCompany.trim()
         }, { merge: true });
-        
     } catch (err) {
-        // Fall open if backend is unreachable
+        console.error("Firestore error:", err);
     }
-    
     setErrorMsg('');
     setIsOnboarded(true);
   };
