@@ -79,36 +79,27 @@ def get_logo(name: str):
 
 @app.get("/validate")
 def validate_company(name: str):
-    """Fast backend validation to verify if a string is a real company using live search."""
+    """Fast backend validation that allows any company name but explicitly rejects garbage input."""
     if len(name.strip()) < 2:
         return {"valid": False}
-    
+        
     name_lower = name.lower().strip()
     
-    # Fast bypass for major Indian & Global companies
-    whitelist = ["blinkit", "zepto", "swiggy", "instamart", "dunzo", "bigbasket", "bbnow", "flipkart", "amazon", "jiomart", "tata", "meesho", "nykaa", "myntra", "ajio", "firstcry", "lenskart", "snapdeal", "shopclues", "indiamart", "udaan", "shiprocket", "delhivery", "xpressbees", "zomato", "grofers", "tcs", "infosys", "wipro", "hcl", "tech mahindra", "reliance", "hdfc", "sbi", "icici", "axis", "airtel", "jio", "paytm", "phonepe", "cred", "zerodha", "groww", "upstox", "google", "microsoft", "apple", "meta"]
-    if any(w == name_lower or w in name_lower for w in whitelist):
-        return {"valid": True}
-        
-    try:
-        results = DDGS().text(f"{name} company official", max_results=2)
-        if not results:
-            return {"valid": True} # Fall open if DDG returns empty (Render IP rate limit)
-            
-        text_dump = " ".join([r['title'] + " " + r['body'] for r in results]).lower()
-        parts = name_lower.split()
-        
-        # If any significant part of the name appears in the search results, it's real
-        if any(part in text_dump for part in parts if len(part) > 2):
-            return {"valid": True}
-        # If it's a single short word that didn't match
-        if len(parts) == 1 and name_lower in text_dump:
-            return {"valid": True}
-            
+    # 1. Check for known keyboard smashes
+    smashes = ["asdf", "qwer", "zxcv", "hjkl", "uiop", "12345", "testtest", "bbbb", "xyzxyz"]
+    if any(s in name_lower for s in smashes):
         return {"valid": False}
-    except Exception as e:
-        print(f"Validation Search Error: {e}")
-        return {"valid": True}  # Fall open if rate limited so we don't break the UI
+        
+    # 2. Check for 4 repeating characters in a row (e.g., "aaaa", "1111")
+    if re.search(r'(.)\1{3,}', name_lower):
+        return {"valid": False}
+        
+    # 3. Check for 6 consonants in a row (highly indicative of a keyboard smash like "sdfghj")
+    if re.search(r'[bcdfghjklmnpqrstvwxz]{6,}', name_lower):
+        return {"valid": False}
+        
+    # If it passes the garbage checks, assume it's a real company and let the AI handle it!
+    return {"valid": True}
 
 @tool("Live Web Search")
 def search_tool(query: str) -> str:
